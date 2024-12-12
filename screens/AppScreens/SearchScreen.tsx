@@ -1,68 +1,89 @@
-import { StackNavigationProp } from "@react-navigation/stack";
-import React, { useState } from "react";
-import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity } from "react-native";
-import { SearchStackParamList } from "../../navigation/AppNavigation/SearchTabStack/SearchNavigation";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  TextInput,
+  FlatList,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { HomeTabParamList } from "../../navigation/AppNavigation/HomeNavigator";
+import { useTheme } from "../../context/themeContext";
+import { useSearchProducts } from "../../service/ApiService";
+import { SearchStackParamList } from "../../navigation/AppNavigation/SearchTabStack/SearchNavigation";
+import { debounce } from "lodash";
+import ProductCard from "../../components/ProductCardSearch";
 
-type SearchScreenNavigationProps = StackNavigationProp<SearchStackParamList, "DetailsScreen">;
+type SearchScreenNavigationProp = StackNavigationProp<SearchStackParamList, "DetailsScreen">;
 
 const SearchScreen: React.FC = () => {
-  const navigation = useNavigation<SearchScreenNavigationProps>();
+  const navigation = useNavigation<SearchScreenNavigationProp>();
+  const { theme } = useTheme();
 
-  const [query, setQuery] = useState<string>(""); // User input for search
-  const [filteredData, setFilteredData] = useState<string[]>([]);
+  const [query, setQuery] = useState<string>(""); // User's input
+  const [searchTerm, setSearchTerm] = useState<string>(""); // Debounced search term
+  const { data: products, isLoading, isError } = useSearchProducts(searchTerm);
 
-  // Sample data to search from
-  const data = [
-    "Apple",
-    "Banana",
-    "Cherry",
-    "Date",
-    "Elderberry",
-    "Fig",
-    "Grape",
-    "Honeydew",
-  ];
-
-  // Filter data based on search query
-  const handleSearch = (text: string) => {
-    setQuery(text);
-    if (text) {
-      const newData = data.filter((item) =>
-        item.toLowerCase().includes(text.toLowerCase())
-      );
-      setFilteredData(newData);
-    } else {
-      setFilteredData([]);
-    }
-  };
-
-  // Render individual list items
-  const renderItem = ({ item }: { item: string }) => (
-    <TouchableOpacity
-      style={styles.item}
-      onPress={() => navigation.navigate("DetailsScreen", {itemName: item})}
-    >
-      <Text style={styles.itemText}>{item}</Text>
-    </TouchableOpacity>
+  // Debounce the input so the API is only called when the user stops typing
+  const debounceSearch = useCallback(
+    debounce((text: string) => {
+      if (text.length >= 3) {
+        setSearchTerm(text); // Update the debounced search term
+      }
+    }, 500), // Adjust debounce delay as needed (in milliseconds)
+    []
   );
 
+  const handleInputChange = (text: string) => {
+    setQuery(text);
+    debounceSearch(text);
+  };
+
+  const handleProductPress = (id: number) => {
+    navigation.navigate("DetailsScreen", { id });
+  };
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      {/* Search Input */}
       <TextInput
-        style={styles.searchInput}
-        placeholder="Search..."
+        style={[styles.searchInput, { backgroundColor: theme.card, color: theme.text }]}
+        placeholder="Search for products..."
+        placeholderTextColor={theme.placeholder}
         value={query}
-        onChangeText={handleSearch}
+        onChangeText={handleInputChange}
       />
-      {filteredData.length > 0 ? (
+
+      {/* Loading Indicator */}
+      {isLoading && (
+        <ActivityIndicator size="large" color={theme.primary} style={styles.loader} />
+      )}
+
+      {/* Error Message */}
+      {isError && (
+        <Text style={[styles.errorText, { color: theme.error }]}>
+          Something went wrong. Please try again.
+        </Text>
+      )}
+
+      {/* Product List */}
+      {!isLoading && !isError && products?.length > 0 && (
         <FlatList
-          data={filteredData}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={renderItem}
+          data={products}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <ProductCard product={item} onPress={handleProductPress} />
+          )}
+          contentContainerStyle={styles.listContainer}
         />
-      ) : (
-        <Text style={styles.noResults}>No results found</Text>
+      )}
+
+      {/* No Results */}
+      {!isLoading && !isError && products?.length === 0 && query.length >= 3 && (
+        <Text style={[styles.noResultsText, { color: theme.text }]}>No results found</Text>
       )}
     </View>
   );
@@ -72,31 +93,45 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#f9f9f9",
   },
   searchInput: {
     height: 50,
-    borderColor: "#ccc",
-    borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 16,
     marginBottom: 16,
-    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ccc",
   },
-  item: {
-    padding: 16,
-    marginBottom: 8,
-    backgroundColor: "#e6e6e6",
-    borderRadius: 8,
+  loader: {
+    marginVertical: 16,
   },
-  itemText: {
+  errorText: {
+    textAlign: "center",
+    marginVertical: 16,
     fontSize: 16,
   },
-  noResults: {
-    textAlign: "center",
-    marginTop: 20,
+  productCard: {
+    padding: 16,
+    marginBottom: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  productTitle: {
     fontSize: 18,
-    color: "#aaa",
+    fontWeight: "bold",
+  },
+  productPrice: {
+    fontSize: 16,
+    marginTop: 4,
+  },
+  listContainer: {
+    paddingBottom: 16,
+  },
+  noResultsText: {
+    textAlign: "center",
+    fontSize: 16,
+    marginTop: 16,
   },
 });
 

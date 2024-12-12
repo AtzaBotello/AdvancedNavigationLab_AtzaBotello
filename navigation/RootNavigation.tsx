@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext, useEffect } from "react";
+import React, { useState, createContext, useContext, useEffect, useMemo } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import AuthNavigator from "./AuthNavigation/AuthNavigation";
 import AppNavigator from "./AppNavigation/AppNavigation";
@@ -8,6 +8,7 @@ import ThemedStatusBar from "../components/ThemeStatusBar";
 
 import 'react-native-get-random-values';
 import * as uuid from 'uuid';// UUID library to generate unique user IDs
+import SplashScreen from "../screens/SplashScreen";
 
 // Define the types for the Auth Context
 type User = {
@@ -53,8 +54,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    console.log("login", email, password);
     setLoading(true);
+    console.log('login', users);
     const user = users.find(
       (user) => user.email === email && user.password === password
     );
@@ -99,6 +100,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await AsyncStorage.removeItem("currentUser");
   };
 
+  const value: AuthContextType = useMemo(
+    () => ({
+      currentUser,
+      isAuthenticated: !!currentUser,
+      login,
+      register,
+      logout,
+      loading,
+    }),
+    [
+      currentUser,
+      login,
+      register,
+      logout,
+      loading,
+    ]
+  );
+
   return (
     <AuthContext.Provider
       value={{
@@ -126,14 +145,25 @@ export const useAuth = () => {
 export const RootNavigator: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
+  const [isSplashVisible, setSplashVisible] = React.useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSplashVisible(false), 3000); // Adjust duration
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <NavigationContainer>
-      {isAuthenticated ? (
-        <>
-          <ThemedStatusBar />
-          <AppNavigator />
-        </>
-      ) : <AuthNavigator />}
+      {
+        isSplashVisible ? (
+          <SplashScreen />
+        ) : isAuthenticated ? (
+          <>
+            <ThemedStatusBar />
+            <AppNavigator />
+          </>
+        ) : <AuthNavigator />
+      }
     </NavigationContainer>
   );
 };

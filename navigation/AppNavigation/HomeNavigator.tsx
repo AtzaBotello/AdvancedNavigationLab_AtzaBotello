@@ -7,6 +7,9 @@ import FeedNavigation from "./FeedTabStack/FeedNavigation";
 
 import DetailsScreen from "../../screens/AppScreens/DetailsScreen"; // Import your Details Screen
 import SearchNavigation from "./SearchTabStack/SearchNavigation";
+
+import Icon from "react-native-remix-icon";
+
 import { useTheme } from "../../context/themeContext";
 
 export type HomeTabParamList = {
@@ -32,9 +35,33 @@ const HomeNavigator: React.FC = () => {
         tabBarInactiveTintColor: theme.text, // Theme-based inactive tab color
       })}
     >
-      <Tab.Screen name="Feed" component={FeedNavigation} />
-      <Tab.Screen name="Search" component={SearchNavigation} />
-      <Tab.Screen name="Notifications" component={DetailsScreen} />
+      <Tab.Screen
+        name="Feed"
+        component={FeedNavigation}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Icon name="home-3-fill" size="24" color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Search"
+        component={SearchNavigation}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Icon name="search-line" size="24" color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Notifications"
+        component={DetailsScreen}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Icon name="notification-3-fill" size="24" color={color} />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 };

@@ -4,10 +4,12 @@ import SearchScreen from "../../../screens/AppScreens/SearchScreen";
 import DetailsScreen from "../../../screens/AppScreens/DetailsScreen";
 import CustomHeader from "../../../components/CustomHeader";
 import { useTheme } from "../../../context/themeContext";
+import CartScreen from "../../../screens/AppScreens/CartScreen";
 
 export type SearchStackParamList = {
     SearchScreen: undefined;
-    DetailsScreen: { itemName: string };
+    DetailsScreen: { id: number };
+    Cart: undefined;
 };
 
 const Stack = createStackNavigator<SearchStackParamList>();
@@ -28,6 +30,7 @@ const SearchNavigation: React.FC = () => {
         >
             <Stack.Screen name="SearchScreen" component={SearchScreen} />
             <Stack.Screen name="DetailsScreen" component={DetailsScreen} />
+            <Stack.Screen name="Cart" component={CartScreen} />
         </Stack.Navigator>
     )
 }

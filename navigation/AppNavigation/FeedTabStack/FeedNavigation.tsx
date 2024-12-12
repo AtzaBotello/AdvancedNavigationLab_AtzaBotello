@@ -4,14 +4,15 @@ import HomeScreen from "../../../screens/AppScreens/HomeScreen";
 import DetailsScreen from "../../../screens/AppScreens/DetailsScreen";
 import CustomHeader from "../../../components/CustomHeader";
 import { useTheme } from "../../../context/themeContext";
+import CartScreen from "../../../screens/AppScreens/CartScreen";
 
 export type FeedStackParamList = {
     Home: undefined;
-    Details: undefined;
+    Details: { id: number };
+    Cart: undefined;
 };
 
 const Stack = createStackNavigator<FeedStackParamList>();
-
 
 const FeedNavigation: React.FC = () => {
     const { theme } = useTheme();
@@ -20,7 +21,7 @@ const FeedNavigation: React.FC = () => {
       <Stack.Navigator
         initialRouteName="Home"
         screenOptions={{
-          header: ({ route }) => <CustomHeader title={route.name} />, // Custom Header with dynamic title
+          header: ({ route }) => <CustomHeader title={route.name ?? ""} />, // Custom Header with dynamic title
           headerStyle: {
             backgroundColor: theme.primary, // Theme-based header background
           },
@@ -29,6 +30,7 @@ const FeedNavigation: React.FC = () => {
       >
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Details" component={DetailsScreen} />
+        <Stack.Screen name="Cart" component={CartScreen} />
       </Stack.Navigator>
     );
   };

@@ -1,39 +1,52 @@
-// screens/HomeScreen.tsx
-
 import React from "react";
-import { View, Text, Button, StyleSheet, SafeAreaView } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { HomeTabParamList } from "../../navigation/AppNavigation/HomeNavigator";
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import { useFetchCategoryList } from "../../service/ApiService";
 import { useTheme } from "../../context/themeContext";
-
-type HomeScreenNavigationProp = StackNavigationProp<HomeTabParamList, "Feed">;
+import CategoryCarousel from "../../components/CategoryCarousel"; // Import reusable component
 
 const HomeScreen: React.FC = () => {
-  const navigation = useNavigation<HomeScreenNavigationProp>();
   const { theme } = useTheme();
+  const { data: categories, isLoading: isLoadingCategories } = useFetchCategoryList();
+
+  if (isLoadingCategories) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <ActivityIndicator size="large" color={theme.primary} />
+      </View>
+    );
+  }
 
   return (
-      <View style={[styles.container, {backgroundColor: theme.background}]}>
-        <Text style={[styles.title, { color: theme.text }]}>Home Screen</Text>
-        <Button
-          title="Go to Details"
-          color={theme.primary}
-          onPress={() => navigation.navigate("Notifications")}
-        />
-      </View>
+    <ScrollView
+      style={[styles.container, { backgroundColor: theme.background }]}
+      contentContainerStyle={styles.contentContainer}
+    >
+      {categories?.map((category: string) => (
+        <View key={category} style={styles.categorySection}>
+          <Text style={[styles.categoryTitle, { color: theme.text }]}>
+            {category.charAt(0).toUpperCase() + category.slice(1)}
+          </Text>
+          <CategoryCarousel category={category} />
+        </View>
+      ))}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 16,
+  contentContainer: {
+    padding: 16,
+  },
+  categorySection: {
+    marginBottom: 24,
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 8,
   },
 });
 
