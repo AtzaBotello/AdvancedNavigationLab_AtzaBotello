@@ -20,13 +20,14 @@ const HomeScreen: React.FC = () => {
   if (isLoadingCategories) {
     return (
       <View style={[styles.container, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.primary} />
+        <ActivityIndicator testID="loading-indicator" size="large" color={theme.primary} />
       </View>
     );
   }
 
   return (
     <FlatList
+      testID="flatlist"
       data={categories}
       keyExtractor={(item) => item}
       renderItem={({ item }) => (

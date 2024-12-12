@@ -1,13 +1,9 @@
 import React from 'react';
 import {
   StyleSheet,
-  useColorScheme,
 } from 'react-native';
 
 import {
-  useQuery,
-  useMutation,
-  useQueryClient,
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
@@ -65,11 +61,6 @@ const getAllStorage = async () => {
 getAllStorage();*/
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
 
   return (
     <QueryClientProvider client={queryClient}>

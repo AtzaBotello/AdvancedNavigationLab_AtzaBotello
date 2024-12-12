@@ -3,7 +3,7 @@ import { darkTheme, lightTheme } from "../theme/theme";
 
 type Theme = typeof lightTheme;
 
-const ThemeContext = createContext<{
+export const ThemeContext = createContext<{
   theme: Theme;
   toggleTheme: () => void;
 }>({

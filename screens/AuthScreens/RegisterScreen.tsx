@@ -99,6 +99,7 @@ const RegisterScreen: React.FC = () => {
 
         {/* Register Button */}
         <TouchableOpacity
+          testID="test-registerButton"
           style={styles.button}
           onPress={handleRegister}
           disabled={loading}

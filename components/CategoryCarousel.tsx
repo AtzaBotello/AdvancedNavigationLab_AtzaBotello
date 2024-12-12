@@ -24,6 +24,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ category }) => {
 
   return (
     <FlatList
+      testID="category-carousel"
       horizontal
       data={products?.slice(0, 10)} // Limit to 10 products
       keyExtractor={(item) => item.id.toString()}

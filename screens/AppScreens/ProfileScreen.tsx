@@ -23,7 +23,7 @@ const ProfileScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.title, { color: theme.text }]}>Profile</Text>
+      <Text testID="test-title" style={[styles.title, { color: theme.text }]}>Profile</Text>
 
       {/* User Info */}
       <View style={[styles.infoContainer, { backgroundColor: theme.card }]}>
@@ -39,6 +39,7 @@ const ProfileScreen: React.FC = () => {
 
       {/* Logout Button */}
       <TouchableOpacity
+        testID="test-logout"
         style={[styles.button, { backgroundColor: theme.primary }]}
         onPress={handleLogout}
       >

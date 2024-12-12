@@ -54,7 +54,7 @@ const DetailsScreen: React.FC = () => {
   if (isLoading) {
     return (
       <View style={[styles.container, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.primary} />
+        <ActivityIndicator testID="loading-indicator" size="large" color={theme.primary} />
       </View>
     );
   }
@@ -74,6 +74,7 @@ const DetailsScreen: React.FC = () => {
       {/* Horizontal ScrollView for Images */}
       <View>
         <ScrollView
+          testID="carousel-scrollview"
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
@@ -89,6 +90,7 @@ const DetailsScreen: React.FC = () => {
         <View style={styles.indicatorContainer}>
           {product.images.map((_, index) => (
             <View
+              testID="indicator"
               key={index}
               style={[
                 styles.indicator,
@@ -114,6 +116,7 @@ const DetailsScreen: React.FC = () => {
         {/* Quantity Selector */}
         <View style={styles.quantityContainer}>
           <TouchableOpacity
+            testID="decrement-quantity"
             style={[styles.quantityButton, { backgroundColor: theme.primary }]}
             onPress={() => setQuantity(Math.max(1, quantity - 1))}
           >
@@ -121,6 +124,7 @@ const DetailsScreen: React.FC = () => {
           </TouchableOpacity>
           <Text style={[styles.quantityText, { color: theme.text }]}>{quantity}</Text>
           <TouchableOpacity
+            testID="increment-quantity"
             style={[styles.quantityButton, { backgroundColor: theme.primary }]}
             onPress={() => setQuantity(quantity + 1)}
           >

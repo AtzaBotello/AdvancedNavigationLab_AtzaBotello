@@ -23,7 +23,7 @@ const CartScreen: React.FC = () => {
       <View style={styles.cardContent}>
         <Text style={[styles.title, { color: theme.text }]}>{item.title}</Text>
         <Text style={[styles.text, { color: theme.text }]}>Quantity: {item.quantity}</Text>
-        <Text style={[styles.text, { color: theme.primary }]}>Price: ${(item.price * item.quantity).toFixed(2)}</Text>
+        <Text testID={`test-price-${item.id}`} style={[styles.text, { color: theme.primary }]}>Price: ${(item.price * item.quantity).toFixed(2)}</Text>
       </View>
     </View>
   );

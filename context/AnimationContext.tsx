@@ -5,7 +5,7 @@ type AnimationContextType = {
   toggleAnimation: () => void;
 };
 
-const AnimationContext = createContext<AnimationContextType | undefined>(
+export const AnimationContext = createContext<AnimationContextType | undefined>(
   undefined
 );
 
