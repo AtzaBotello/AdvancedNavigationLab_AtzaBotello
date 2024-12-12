@@ -1,39 +1,39 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
+  Text,
   TextInput,
   FlatList,
-  Text,
   StyleSheet,
   TouchableOpacity,
+  Image,
   ActivityIndicator,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { HomeTabParamList } from "../../navigation/AppNavigation/HomeNavigator";
-import { useTheme } from "../../context/themeContext";
-import { useSearchProducts } from "../../service/ApiService";
-import { SearchStackParamList } from "../../navigation/AppNavigation/SearchTabStack/SearchNavigation";
 import { debounce } from "lodash";
-import ProductCard from "../../components/ProductCardSearch";
+import { useSearchProducts } from "../../service/ApiService";
+import { useTheme } from "../../context/themeContext";
+import { useNavigation } from "@react-navigation/native";
+import { SearchStackParamList } from "../../navigation/AppNavigation/SearchTabStack/SearchNavigation";
+import { StackNavigationProp } from "@react-navigation/stack";
+import ProductCardSearch from "../../components/ProductCardSearch";
 
 type SearchScreenNavigationProp = StackNavigationProp<SearchStackParamList, "DetailsScreen">;
 
-const SearchScreen: React.FC = () => {
-  const navigation = useNavigation<SearchScreenNavigationProp>();
-  const { theme } = useTheme();
 
-  const [query, setQuery] = useState<string>(""); // User's input
-  const [searchTerm, setSearchTerm] = useState<string>(""); // Debounced search term
+const SearchScreen: React.FC = () => {
+  const { theme } = useTheme();
+  const navigation = useNavigation<SearchScreenNavigationProp>();
+  const [query, setQuery] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const { data: products, isLoading, isError } = useSearchProducts(searchTerm);
 
-  // Debounce the input so the API is only called when the user stops typing
+  // Debounce the search input
   const debounceSearch = useCallback(
     debounce((text: string) => {
       if (text.length >= 3) {
-        setSearchTerm(text); // Update the debounced search term
+        setSearchTerm(text);
       }
-    }, 500), // Adjust debounce delay as needed (in milliseconds)
+    }, 500),
     []
   );
 
@@ -42,46 +42,39 @@ const SearchScreen: React.FC = () => {
     debounceSearch(text);
   };
 
-  const handleProductPress = (id: number) => {
-    navigation.navigate("DetailsScreen", { id });
-  };
-
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {/* Search Input */}
-      <TextInput
-        style={[styles.searchInput, { backgroundColor: theme.card, color: theme.text }]}
-        placeholder="Search for products..."
-        placeholderTextColor={theme.placeholder}
-        value={query}
-        onChangeText={handleInputChange}
-      />
+      {/* Search Bar */}
+      <View style={[styles.searchBarContainer, { backgroundColor: theme.card }]}>
+        <TextInput
+          style={[styles.searchInput, { color: theme.text }]}
+          placeholder="Search for products..."
+          placeholderTextColor={theme.placeholder}
+          value={query}
+          onChangeText={handleInputChange}
+        />
+      </View>
 
-      {/* Loading Indicator */}
+      {/* Content */}
       {isLoading && (
         <ActivityIndicator size="large" color={theme.primary} style={styles.loader} />
       )}
-
-      {/* Error Message */}
       {isError && (
         <Text style={[styles.errorText, { color: theme.error }]}>
           Something went wrong. Please try again.
         </Text>
       )}
-
-      {/* Product List */}
       {!isLoading && !isError && products?.length > 0 && (
         <FlatList
           data={products}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <ProductCard product={item} onPress={handleProductPress} />
-          )}
+          renderItem={({item}) => <ProductCardSearch product={item} onPress={navigation.navigate} />}
+          numColumns={2}
+          columnWrapperStyle={styles.columnWrapper}
           contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
         />
       )}
-
-      {/* No Results */}
       {!isLoading && !isError && products?.length === 0 && query.length >= 3 && (
         <Text style={[styles.noResultsText, { color: theme.text }]}>No results found</Text>
       )}
@@ -94,16 +87,20 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  searchInput: {
-    height: 50,
-    borderRadius: 8,
+  searchBarContainer: {
+    borderRadius: 24,
     paddingHorizontal: 16,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "#ccc",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  searchInput: {
+    flex: 1,
+    height: 48,
+    fontSize: 16,
   },
   loader: {
-    marginVertical: 16,
+    marginTop: 16,
   },
   errorText: {
     textAlign: "center",
@@ -111,22 +108,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   productCard: {
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 8,
+    flex: 1,
+    margin: 8,
+    borderRadius: 12,
+    padding: 12,
+    alignItems: "center",
     borderWidth: 1,
     borderColor: "#ccc",
+    overflow: "hidden",
+  },
+  productImage: {
+    width: "100%",
+    height: 120,
+    resizeMode: "cover",
+    borderRadius: 8,
   },
   productTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 14,
+    fontWeight: "600",
+    marginVertical: 8,
+    textAlign: "center",
   },
   productPrice: {
     fontSize: 16,
-    marginTop: 4,
+    fontWeight: "bold",
   },
   listContainer: {
     paddingBottom: 16,
+  },
+  columnWrapper: {
+    justifyContent: "space-between",
   },
   noResultsText: {
     textAlign: "center",
